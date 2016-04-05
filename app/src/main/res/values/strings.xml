@@ -1,5 +1,5 @@
 <resources>
     <string name="app_name">Projet Abeille</string>
-    <string name="action_settings">Settings</string>
-    <string name="section_format">this is a test: %1$d</string>
+    <string name="action_settings">Information en direct</string>
+    <string name="section_format">%1$s</string>
 </resources>

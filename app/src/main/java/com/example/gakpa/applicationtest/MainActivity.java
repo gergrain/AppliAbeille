@@ -56,26 +56,18 @@ public class MainActivity extends AppCompatActivity {
         // Set up the ViewPager with the sections adapter.
         mViewPager = (ViewPager) findViewById(R.id.container);
         mViewPager.setAdapter(mSectionsPagerAdapter);
-        View view = inflater.inflate(R.layout.fragment_main, container, false);
-        GraphView graph = (GraphView) findViewById(R.id.graph);
-        LineGraphSeries<DataPoint> series = new LineGraphSeries<DataPoint>(new DataPoint[] {
-                new DataPoint(0, 1),
-                new DataPoint(1, 5),
-                new DataPoint(2, 3),
-                new DataPoint(3, 2),
-                new DataPoint(4, 6)
-        });
-        graph.addSeries(series);
 
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+
+
+       /* FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
             }
-        });
+        });*/
 
 
     }
@@ -112,19 +104,20 @@ public class MainActivity extends AppCompatActivity {
          * fragment.
          */
         private static final String ARG_SECTION_NUMBER = "section_number";
-
+        private static final String ARG_SECTION_NAME = "section_name";
+        private String nom="";
         public PlaceholderFragment() {
         }
-
         /**
          * Returns a new instance of this fragment for the given section
          * number.
          */
-        public static PlaceholderFragment newInstance(int sectionNumber) {
+        public static PlaceholderFragment newInstance(String nom) {
             PlaceholderFragment fragment = new PlaceholderFragment();
             Bundle args = new Bundle();
 
-            args.putInt(ARG_SECTION_NUMBER, sectionNumber);
+
+            args.putString(ARG_SECTION_NAME, nom);
             fragment.setArguments(args);
             return fragment;
         }
@@ -133,7 +126,17 @@ public class MainActivity extends AppCompatActivity {
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
             View rootView = inflater.inflate(R.layout.fragment_main, container, false);
-
+            TextView textView = (TextView) rootView.findViewById(R.id.capteur);
+            textView.setText(getString(R.string.section_format,getArguments().getString(ARG_SECTION_NAME)));
+                    GraphView graph = (GraphView) rootView.findViewById(R.id.graph);
+            LineGraphSeries<DataPoint> series = new LineGraphSeries<DataPoint>(new DataPoint[] {
+                    new DataPoint(0, 1),
+                    new DataPoint(1, 5),
+                    new DataPoint(2, 3),
+                    new DataPoint(3, 2),
+                    new DataPoint(4, 6)
+            });
+            graph.addSeries(series);
 
             return rootView;
         }
@@ -153,26 +156,33 @@ public class MainActivity extends AppCompatActivity {
         public Fragment getItem(int position) {
             // getItem is called to instantiate the fragment for the given page.
             // Return a PlaceholderFragment (defined as a static inner class below).
-            return PlaceholderFragment.newInstance(position + 1);
+            // switch qui crera les fragment en fonction du numero
+
+            return PlaceholderFragment.newInstance((String)getPageTitle(position));
         }
 
         @Override
         public int getCount() {
             // Show 3 total pages.
-            return 10;
+            return 6;
         }
 
         @Override
         public CharSequence getPageTitle(int position) {
             switch (position) {
                 case 0:
-                    return "SECTION 1";
+                    return "Temperature intérieur";
                 case 1:
-                    return "SECTION 2";
+                    return "Temperature extérieur";
                 case 2:
-                    return "SECTION 3";
+                    return "Poid";
                 case 3:
-                    return "SECTION 4";
+                    return "Humidité";
+                case 4:
+                    return "Mouvement";
+                case 5:
+                    return "Pression atmospherique";
+
             }
             return null;
         }
