@@ -1,6 +1,8 @@
 package com.example.gakpa.applicationtest;
 
+import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
+import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
@@ -23,6 +25,9 @@ import android.widget.TextView;
 import com.jjoe64.graphview.GraphView;
 import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.LineGraphSeries;
+
+import java.util.Random;
+import java.util.Timer;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -68,6 +73,29 @@ public class MainActivity extends AppCompatActivity {
                         .setAction("Action", null).show();
             }
         });*/
+       /* GraphView graph = (GraphView) findViewById(R.id.graph);
+
+        ClassDiagramme c =new ClassDiagramme();
+        while(true){
+            long l =  500;
+            try{
+                int lower = 0;
+                int higher = 12;
+
+                int x = (int)(Math.random() * (higher-lower)) + lower;
+                int y = (int)(Math.random() * (higher-lower)) + lower;
+                c.addPoint(x,y);
+                LineGraphSeries<DataPoint> series = new LineGraphSeries<DataPoint>(c.generateTabDataPoint());
+
+
+                graph.addSeries(series);
+
+                Thread.sleep(l);
+            }catch(InterruptedException i){
+
+            }
+
+        }*/
 
 
     }
@@ -105,7 +133,12 @@ public class MainActivity extends AppCompatActivity {
          */
         private static final String ARG_SECTION_NUMBER = "section_number";
         private static final String ARG_SECTION_NAME = "section_name";
-        private String nom="";
+        private final Handler mHandler = new Handler();
+        private LineGraphSeries<DataPoint> mSeries1;
+        private LineGraphSeries<DataPoint> mSeries2;
+        private Runnable mTimer1;
+        private Runnable mTimer2;
+        private double graph2LastXValue = 5d;
         public PlaceholderFragment() {
         }
         /**
@@ -127,18 +160,61 @@ public class MainActivity extends AppCompatActivity {
                                  Bundle savedInstanceState) {
             View rootView = inflater.inflate(R.layout.fragment_main, container, false);
             TextView textView = (TextView) rootView.findViewById(R.id.capteur);
-            textView.setText(getString(R.string.section_format,getArguments().getString(ARG_SECTION_NAME)));
-                    GraphView graph = (GraphView) rootView.findViewById(R.id.graph);
-            LineGraphSeries<DataPoint> series = new LineGraphSeries<DataPoint>(new DataPoint[] {
-                    new DataPoint(0, 1),
-                    new DataPoint(1, 5),
-                    new DataPoint(2, 3),
-                    new DataPoint(3, 2),
-                    new DataPoint(4, 6)
-            });
-            graph.addSeries(series);
+            textView.setText(getString(R.string.section_format, getArguments().getString(ARG_SECTION_NAME)));
+            GraphView graph = (GraphView) rootView.findViewById(R.id.graph);
+            mSeries1 = new LineGraphSeries<DataPoint>(generateData());
+            graph.addSeries(mSeries1);
+
+            GraphView graph2 = (GraphView) rootView.findViewById(R.id.graph2);
+            mSeries2 = new LineGraphSeries<DataPoint>();
+            graph2.addSeries(mSeries2);
+            graph2.getViewport().setXAxisBoundsManual(true);
+            graph2.getViewport().setMinX(0);
+            graph2.getViewport().setMaxX(40);
+
+
 
             return rootView;
+        }
+        @Override
+        public void onResume() {
+            super.onResume();
+            mTimer1 = new Runnable() {
+                @Override
+                public void run() {
+                    mSeries1.resetData(generateData());
+                    mHandler.postDelayed(this, 300);
+                }
+            };
+            mHandler.postDelayed(mTimer1, 300);
+
+            mTimer2 = new Runnable() {
+                @Override
+                public void run() {
+                    graph2LastXValue += 1d;
+                    mSeries2.appendData(new DataPoint(graph2LastXValue, getRandom()), true, 40);
+                    mHandler.postDelayed(this, 200);
+                }
+            };
+            mHandler.postDelayed(mTimer2, 1000);
+        }
+
+        private DataPoint[] generateData() {
+            int count = 30;
+            DataPoint[] values = new DataPoint[count];
+            for (int i=0; i<count; i++) {
+                double x = i;
+                double f = mRand.nextDouble()*0.15+0.3;
+                double y = Math.sin(i*f+2) + mRand.nextDouble()*0.3;
+                DataPoint v = new DataPoint(x, y);
+                values[i] = v;
+            }
+            return values;
+        }
+        double mLastRandom = 2;
+        Random mRand = new Random();
+        private double getRandom() {
+            return mLastRandom += mRand.nextDouble()*0.5 - 0.25;
         }
     }
 
