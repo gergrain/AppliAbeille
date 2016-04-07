@@ -135,7 +135,6 @@ public class MainActivity extends AppCompatActivity {
         private static final String ARG_SECTION_NAME = "section_name";
         private final Handler mHandler = new Handler();
         private LineGraphSeries<DataPoint> mSeries1;
-        private LineGraphSeries<DataPoint> mSeries2;
         private Runnable mTimer1;
         private Runnable mTimer2;
         private double graph2LastXValue = 5d;
@@ -162,15 +161,9 @@ public class MainActivity extends AppCompatActivity {
             TextView textView = (TextView) rootView.findViewById(R.id.capteur);
             textView.setText(getString(R.string.section_format, getArguments().getString(ARG_SECTION_NAME)));
             GraphView graph = (GraphView) rootView.findViewById(R.id.graph);
-            mSeries1 = new LineGraphSeries<DataPoint>(generateData());
+            mSeries1 = new LineGraphSeries<DataPoint>();
             graph.addSeries(mSeries1);
 
-            GraphView graph2 = (GraphView) rootView.findViewById(R.id.graph2);
-            mSeries2 = new LineGraphSeries<DataPoint>();
-            graph2.addSeries(mSeries2);
-            graph2.getViewport().setXAxisBoundsManual(true);
-            graph2.getViewport().setMinX(0);
-            graph2.getViewport().setMaxX(40);
 
 
 
@@ -183,20 +176,10 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void run() {
                     mSeries1.resetData(generateData());
-                    mHandler.postDelayed(this, 300);
+                    mHandler.postDelayed(this, 5000);
                 }
             };
-            mHandler.postDelayed(mTimer1, 300);
-
-            mTimer2 = new Runnable() {
-                @Override
-                public void run() {
-                    graph2LastXValue += 1d;
-                    mSeries2.appendData(new DataPoint(graph2LastXValue, getRandom()), true, 40);
-                    mHandler.postDelayed(this, 200);
-                }
-            };
-            mHandler.postDelayed(mTimer2, 1000);
+            mHandler.postDelayed(mTimer1, 5000);
         }
 
         private DataPoint[] generateData() {
