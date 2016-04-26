@@ -26,6 +26,8 @@ import com.jjoe64.graphview.GraphView;
 import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.LineGraphSeries;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 import java.util.Timer;
 
@@ -136,8 +138,10 @@ public class MainActivity extends AppCompatActivity {
         private final Handler mHandler = new Handler();
         private LineGraphSeries<DataPoint> mSeries1;
         private Runnable mTimer1;
+        List<DataPoint> points = new ArrayList<>();
         private Runnable mTimer2;
         private double graph2LastXValue = 5d;
+        private int inc =0;
         public PlaceholderFragment() {
         }
         /**
@@ -175,11 +179,12 @@ public class MainActivity extends AppCompatActivity {
             mTimer1 = new Runnable() {
                 @Override
                 public void run() {
-                    mSeries1.resetData(generateData());
-                    mHandler.postDelayed(this, 5000);
+
+                    mSeries1.resetData(generateTabDataPoint());
+                    mHandler.postDelayed(this, 1000);
                 }
             };
-            mHandler.postDelayed(mTimer1, 5000);
+            mHandler.postDelayed(mTimer1, 0);
         }
 
         private DataPoint[] generateData() {
@@ -193,6 +198,25 @@ public class MainActivity extends AppCompatActivity {
                 values[i] = v;
             }
             return values;
+        }
+        public DataPoint[] generateTabDataPoint(){
+            points.add(generateOne());
+            DataPoint[] d = new DataPoint[2];
+
+            for(int i = 0; i< (points.size()>=2?2:points.size()); i++){
+                d[i]= points.get(i);
+            }
+
+            return d;
+        }
+        private DataPoint generateOne() {
+
+            double x = mRand.nextDouble()*0+3;
+            double f = mRand.nextDouble()*0.15+0.3;
+            double y = Math.sin(inc*f+2) + mRand.nextDouble()*0.3;
+            DataPoint v = new DataPoint(x, y);
+            inc++;
+            return v;
         }
         double mLastRandom = 2;
         Random mRand = new Random();

@@ -29,6 +29,10 @@ public class ClassDiagramme {
         this.points.add(new DataPoint(x,y));
     }
 
+    public void addPoint(DataPoint d){
+        this.points.add(d);
+    }
+
     public DataPoint[] generateTabDataPoint(){
         DataPoint[] d = new DataPoint[points.size()];
 
