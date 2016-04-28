@@ -64,7 +64,8 @@ public class MainActivity extends AppCompatActivity {
         mViewPager = (ViewPager) findViewById(R.id.container);
         mViewPager.setAdapter(mSectionsPagerAdapter);
 
-
+        SocketTask socketTask = new SocketTask("127.0.0.1", 11000);
+        socketTask.execute();
 
 
        /* FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
