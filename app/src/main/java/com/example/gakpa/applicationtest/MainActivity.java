@@ -201,9 +201,9 @@ public class MainActivity extends AppCompatActivity {
         }
         public DataPoint[] generateTabDataPoint(){
             points.add(generateOne());
-            DataPoint[] d = new DataPoint[2];
+            DataPoint[] d = new DataPoint[points.size()];
 
-            for(int i = 0; i< (points.size()>=2?2:points.size()); i++){
+            for(int i = 0; i< (points.size()); i++){
                 d[i]= points.get(i);
             }
 
@@ -211,7 +211,7 @@ public class MainActivity extends AppCompatActivity {
         }
         private DataPoint generateOne() {
 
-            double x = mRand.nextDouble()*0+3;
+            double x = inc;
             double f = mRand.nextDouble()*0.15+0.3;
             double y = Math.sin(inc*f+2) + mRand.nextDouble()*0.3;
             DataPoint v = new DataPoint(x, y);
