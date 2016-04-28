@@ -4,6 +4,7 @@ import android.os.AsyncTask;
 import android.util.Log;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.net.Socket;
 
 /**
@@ -21,9 +22,16 @@ public class SocketTask extends AsyncTask<Void, Void, Void> {
     @Override
     protected Void doInBackground(Void... voids) {
         Socket socket = null;
+        OutputStream output = null;
 
         try {
             socket = new Socket(addr, port);
+
+            if (socket.isConnected()) {
+                output = socket.getOutputStream();
+                output.write(("Hey !").getBytes());
+                output.close();
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
