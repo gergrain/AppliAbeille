@@ -3,6 +3,8 @@ package com.example.gakpa.applicationtest;
 import android.os.AsyncTask;
 import android.util.Log;
 
+import org.json.JSONException;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -17,9 +19,12 @@ public class SocketTask extends AsyncTask<Void, Void, Void> {
     String addr;
     int port;
     String data="";
-    SocketTask(String addr, int port) {
+    OnTaskCompleted listener;
+    SocketTask(String addr, int port,OnTaskCompleted listener) {
         this.addr = addr;
         this.port = port;
+        this.listener= listener;
+
     }
 
     @Override
@@ -38,7 +43,7 @@ public class SocketTask extends AsyncTask<Void, Void, Void> {
                 StringBuilder total = new StringBuilder();
 
                 this.data = r.readLine();
-                Log.d("app",data);
+                //Log.d("app",data);
                 output.close();
             }
         } catch (IOException e) {
@@ -48,7 +53,18 @@ public class SocketTask extends AsyncTask<Void, Void, Void> {
         return null;
     }
 
+    @Override
+    protected void onPostExecute(Void aVoid) {
+
+        try {
+            listener.onTaskCompleted(this.getData());
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
     public String getData(){
+
         return this.data;
     }
 }

@@ -27,6 +27,9 @@ import com.jjoe64.graphview.GraphView;
 import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.LineGraphSeries;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -66,8 +69,7 @@ public class MainActivity extends AppCompatActivity {
         mViewPager = (ViewPager) findViewById(R.id.container);
         mViewPager.setAdapter(mSectionsPagerAdapter);
 
-        SocketTask socketTask = new SocketTask("10.0.2.2", 11000);
-        socketTask.execute();
+
 
 
 
@@ -132,7 +134,7 @@ public class MainActivity extends AppCompatActivity {
     /**
      * A placeholder fragment containing a simple view.
      */
-    public static class PlaceholderFragment extends Fragment {
+    public static class PlaceholderFragment extends Fragment implements OnTaskCompleted {
         /**
          * The fragment argument representing the section number for this
          * fragment.
@@ -146,6 +148,13 @@ public class MainActivity extends AppCompatActivity {
         private Runnable mTimer2;
         private double graph2LastXValue = 5d;
         private int inc =0;
+        private String titre;
+        private int idPrelevement;
+        private TextView textView2;
+        private String val="0";
+
+        private String id = "";
+        private Boolean isok = true;
         public PlaceholderFragment() {
         }
         /**
@@ -167,7 +176,10 @@ public class MainActivity extends AppCompatActivity {
                                  Bundle savedInstanceState) {
             View rootView = inflater.inflate(R.layout.fragment_main, container, false);
             TextView textView = (TextView) rootView.findViewById(R.id.capteur);
+            titre = getArguments().getString(ARG_SECTION_NAME);
+            Log.d("whosthat",titre);
             textView.setText(getString(R.string.section_format, getArguments().getString(ARG_SECTION_NAME)));
+            textView2 = (TextView) rootView.findViewById(R.id.valeur);
             GraphView graph = (GraphView) rootView.findViewById(R.id.graph);
             mSeries1 = new LineGraphSeries<DataPoint>();
             graph.addSeries(mSeries1);
@@ -180,30 +192,30 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onResume() {
             super.onResume();
+            final PlaceholderFragment me = this;
+
             mTimer1 = new Runnable() {
                 @Override
                 public void run() {
 
-                    mSeries1.resetData(generateTabDataPoint());
-                    mHandler.postDelayed(this, 1000);
+                    //textView2.setText(getString(R.string.section_valeur, inc));
+
+                    SocketTask socketTask = new SocketTask("10.0.2.2", 11000, me);
+                    socketTask.execute();
+                    if(isok) {
+                        mSeries1.resetData(generateTabDataPoint());
+                        mHandler.postDelayed(this, 1000);
+                    }
                 }
             };
             mHandler.postDelayed(mTimer1, 0);
+
+
         }
 
-        private DataPoint[] generateData() {
-            int count = 30;
-            DataPoint[] values = new DataPoint[count];
-            for (int i=0; i<count; i++) {
-                double x = i;
-                double f = mRand.nextDouble()*0.15+0.3;
-                double y = Math.sin(i*f+2) + mRand.nextDouble()*0.3;
-                DataPoint v = new DataPoint(x, y);
-                values[i] = v;
-            }
-            return values;
-        }
+
         public DataPoint[] generateTabDataPoint(){
+
             points.add(generateOne());
             DataPoint[] d = new DataPoint[points.size()];
 
@@ -216,8 +228,9 @@ public class MainActivity extends AppCompatActivity {
         private DataPoint generateOne() {
 
             double x = inc;
-            double f = mRand.nextDouble()*0.15+0.3;
-            double y = Math.sin(inc*f+2) + mRand.nextDouble()*0.3;
+            //double f = mRand.nextDouble()*0.15+0.3;
+           // double y = Math.sin(inc*f+2) + mRand.nextDouble()*0.3;
+            double y = Double.parseDouble(val);
             DataPoint v = new DataPoint(x, y);
             inc++;
             return v;
@@ -226,6 +239,53 @@ public class MainActivity extends AppCompatActivity {
         Random mRand = new Random();
         private double getRandom() {
             return mLastRandom += mRand.nextDouble()*0.5 - 0.25;
+        }
+
+        @Override
+        public void onTaskCompleted(String data) throws JSONException {
+            if(isAdded()) {
+                  Log.d("appsocket test tout ça", String.valueOf(isok));
+
+                JSONObject reader = new JSONObject(data);
+                //Log.d("appsocket test tout ça", reader.getString("TempInt"));
+                isok = this.id!=reader.getString("IDPrlv");
+                if (this.id!=reader.getString("IDPrlv")) {
+                    this.id=reader.getString("IDPrlv");
+                    switch (titre) {
+                        case "Temperature intérieur":
+                            val = reader.getString("TempInt");
+                            textView2.setText(getString(R.string.section_valeur, reader.getString("TempInt")));
+                            Log.d("whosthat2", reader.getString("TempInt"));
+                            break;
+                        case "Temperature extérieur":
+                            textView2.setText(getString(R.string.section_valeur, reader.getString("TempExt")));
+                            val = reader.getString("TempExt");
+                            break;
+                        case "Vibration":
+                            textView2.setText(getString(R.string.section_valeur, reader.getString("Vibration")));
+                            val = reader.getString("Vibration");
+                            break;
+                        case "Humidité intérieur":
+                            textView2.setText(getString(R.string.section_valeur, reader.getString("HumInt")));
+                            val = reader.getString("HumInt");
+                            break;
+                        case "Humidité extérieur":
+                            textView2.setText(getString(R.string.section_valeur, reader.getString("HumExt")));
+                            val = reader.getString("HumExt");
+                            break;
+                        case "Mouvement":
+                            textView2.setText(getString(R.string.section_valeur, reader.getString("ComptAb")));
+                            val = reader.getString("ComptAb");
+                            break;
+                        case "Pression atmospherique":
+                            textView2.setText(getString(R.string.section_valeur, reader.getString("Pression")));
+                            val = reader.getString("Pression");
+                            break;
+
+                    }
+                }
+            }
+
         }
     }
 
@@ -251,7 +311,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public int getCount() {
             // Show 3 total pages.
-            return 6;
+            return 7;
         }
 
         @Override
@@ -262,9 +322,11 @@ public class MainActivity extends AppCompatActivity {
                 case 1:
                     return "Temperature extérieur";
                 case 2:
-                    return "Poid";
+                    return "Vibration";
                 case 3:
-                    return "Humidité";
+                    return "Humidité extérieur";
+                case 6:
+                    return "Humidité intérieur";
                 case 4:
                     return "Mouvement";
                 case 5:

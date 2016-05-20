@@ -10,10 +10,13 @@
 
 
     <com.jjoe64.graphview.GraphView
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="200dip"
         android:id="@+id/graph"
-        android:layout_centerVertical="true"
+        android:layout_below="@+id/valeur"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginTop="54dp"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true" />
 
@@ -26,6 +29,16 @@
         android:id="@+id/capteur"
         android:layout_marginTop="54dp"
         android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="Valeur"
+        android:id="@+id/valeur"
+        android:layout_marginTop="59dp"
+        android:layout_below="@+id/capteur"
         android:layout_centerHorizontal="true" />
 
 </RelativeLayout>
